@@ -1,18 +1,27 @@
-from django.shortcuts import render
-from rest_framework import status, permissions
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from .models import Gift
+from .models import Gift, Category
 from .serializers import GiftSerializer
-from django.http import JsonResponse
+from rest_framework.views import APIView
 
 
-@api_view(['GET'])
-def gift_list(request):
-    if request.method == 'GET':
-        gifts = Gift.objects.all()
-        serializer = GiftSerializer(gifts, many=True)
-        print(request.query_params)
-        return Response(serializer.data)
 
+class GiftsListByManyCategories(APIView):
+    def get(self, request, format=None):
+        return Response({"Please use POST requests"})
 
+    def post(self, request, format=None):
+        filters = request.data['filters']
+        if filters:
+            categories = Category.objects.filter(name__in=filters)
+            print(categories)
+            gifts = Gift.objects.filter(category__in=categories).distinct()
+            serializer = GiftSerializer(gifts, many=True)
+            print(request.data)
+            return Response(serializer.data)
+        else:
+            gifts = Gift.objects.all()
+            serializer = GiftSerializer(gifts, many=True)
+            return Response(serializer.data)
+        
+class GiftsListByOneCategory(GiftsListByManyCategories):
+    pass
