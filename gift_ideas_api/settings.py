@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'api_v1.apps.ApiV1Config',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
@@ -102,7 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Custom user model
-AUTH_USER_MODEL = 'api_v1.User'
+AUTH_USER_MODEL = 'api.User'
 
 """ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

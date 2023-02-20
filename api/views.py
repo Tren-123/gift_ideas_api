@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 
 
 
-class GiftsListByManyCategories(APIView):
+class GiftsFilterByManyCategories(APIView):
     def get(self, request, format=None):
         return Response({"Please use POST requests"})
 
@@ -23,5 +23,5 @@ class GiftsListByManyCategories(APIView):
             serializer = GiftSerializer(gifts, many=True)
             return Response(serializer.data)
         
-class GiftsListByOneCategory(GiftsListByManyCategories):
+class GiftsFilterByOneCategory(GiftsListByManyCategories):
     pass
