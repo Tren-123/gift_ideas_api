@@ -3,32 +3,31 @@ from rest_framework.response import Response
 from .models import Gift, Category
 from .serializers import GiftSerializer
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
+from rest_framework.exceptions import ParseError
+from django.utils.datastructures import MultiValueDictKeyError
 
 
 logger = logging.getLogger(__name__)
 
 
-class GiftsFilterByManyCategories(APIView):
-    def get(self, request, format=None):
-        return Response({"Please use POST requests"})
+class GiftsFilterByManyCategories(ListAPIView):
+    serializer_class = GiftSerializer
 
-    def post(self, request, format=None):
-        logger.debug(request.data)
-        try:
-            filters = request.data['filters']
-            if filters:
-                categories = Category.objects.filter(name__in=filters)
-                logger.debug(categories)
-                gifts = Gift.objects.filter(category__in=categories).distinct()
-                serializer = GiftSerializer(gifts, many=True)
-                return Response(serializer.data)
-            else:
-                gifts = Gift.objects.all()
-                serializer = GiftSerializer(gifts, many=True)
-                return Response(serializer.data)
-        except (KeyError, TypeError) as e:
-            logger.error(f"{type(e).__name__}: {e}")
-            return Response({"Body of request should contain dict with 'filters' key"})
-
+    def get_queryset(self):
+        logger.debug(self.request.query_params)
+        filters = self.request.query_params.get("filters", None)
+        logger.debug(filters)
+        if filters:
+            filters_list = list(filters.split(','))
+            categories = Category.objects.filter(name__in=filters_list)
+            logger.debug(categories)
+            gifts = Gift.objects.filter(category__in=categories).distinct()
+        else:
+            text = f"'filters' not in query params. Query params: {self.request.query_params}"
+            logger.error(text)
+            raise ParseError(text)   
+        return gifts
+    
 class GiftsFilterByOneCategory(GiftsFilterByManyCategories):
     pass
